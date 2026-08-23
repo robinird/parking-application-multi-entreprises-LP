@@ -28,7 +28,6 @@ const TypewriterText = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    // Vitesses d'écriture et de suppression (en ms)
     const typingSpeed = isDeleting ? 30 : 60;
     const pauseTime = isDeleting ? 500 : 2500;
 
@@ -36,14 +35,11 @@ const TypewriterText = () => {
       const fullText = phrases[currentPhraseIndex];
 
       if (!isDeleting && currentText === fullText) {
-        // Pause avant d'effacer
         setTimeout(() => setIsDeleting(true), pauseTime);
       } else if (isDeleting && currentText === "") {
-        // Passage à la phrase suivante
         setIsDeleting(false);
         setCurrentPhraseIndex((prev) => (prev + 1) % phrases.length);
       } else {
-        // Écriture ou suppression
         const nextText = isDeleting
           ? fullText.substring(0, currentText.length - 1)
           : fullText.substring(0, currentText.length + 1);
@@ -101,7 +97,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-white font-bold text-xl tracking-tight">
             <CarFront className="w-6 h-6 text-blue-500" />
-            <span>TechCorp<span className="text-slate-400"> Parking</span></span>
+            <span>Park<span className="text-slate-400">Flow</span></span>
           </div>
           <div className="flex items-center gap-6">
             <a href="#" className="text-sm font-medium hover:text-white transition-colors">Connexion</a>
@@ -169,7 +165,6 @@ export default function LandingPage() {
 
         {/* MACHINE À ÉCRIRE (Le miroir de la douleur dynamique) */}
         <section className="py-24 px-6 relative mt-10">
-          {/* Lueur subtile */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none"></div>
           
           <div className="max-w-4xl mx-auto text-center relative z-10">
@@ -202,7 +197,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Carte 2 : Algorithme */}
+            {/* Carte 2 : Algorithme (Modifié avec algorithm.png) */}
             <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0A] p-8 transition-all duration-300 hover:-translate-y-2 hover:border-indigo-500/30 hover:bg-[#111] hover:shadow-[0_10px_40px_-10px_rgba(99,102,241,0.15)] flex flex-col justify-between">
               <div>
                 <Scale className="w-8 h-8 text-indigo-400 mb-6" />
@@ -211,8 +206,12 @@ export default function LandingPage() {
                   Fin du favoritisme perçu : L'attribution se fait automatiquement selon VOS règles d'entreprise (distance, ancienneté, covoiturage).
                 </p>
               </div>
-              <div className="aspect-video rounded-xl bg-[#151515] border border-white/5 flex items-center justify-center overflow-hidden">
-                <p className="text-xs text-slate-600 transition-transform duration-700 group-hover:scale-105">Espace Média (Animation attribution)</p>
+              <div className="aspect-video rounded-xl bg-black border border-white/5 flex items-center justify-center overflow-hidden">
+                <img 
+                  src="/images/algorithm.png" 
+                  alt="Aperçu de l'algorithme d'équité" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+                />
               </div>
             </div>
 
@@ -310,7 +309,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* CTA FINAL (Design épuré et premium conservé) */}
+        {/* CTA FINAL */}
         <section className="py-24 px-6 text-center">
           <div className="max-w-4xl mx-auto relative rounded-3xl bg-[#0A0A0A] border border-white/10 p-12 md:p-20 overflow-hidden">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-white/5 blur-[100px] rounded-full pointer-events-none"></div>
@@ -335,14 +334,14 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 text-white font-bold tracking-tight opacity-50 hover:opacity-100 transition-opacity">
             <CarFront className="w-5 h-5" />
-            <span>TechCorp Parking</span>
+            <span>ParkFlow</span>
           </div>
           <div className="flex gap-6 text-sm text-slate-500">
             <a href="#" className="hover:text-white transition-colors">Mentions légales</a>
             <a href="#" className="hover:text-white transition-colors">Confidentialité & RGPD</a>
             <a href="#" className="hover:text-white transition-colors">Contact</a>
           </div>
-          <p className="text-sm text-slate-600">© 2026 TechCorp Parking. Tous droits réservés.</p>
+          <p className="text-sm text-slate-600">© 2026 ParkFlow. Tous droits réservés.</p>
         </div>
       </footer>
     </div>
