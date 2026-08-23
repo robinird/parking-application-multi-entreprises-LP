@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   CarFront, 
@@ -10,13 +10,58 @@ import {
   QrCode, 
   LayoutDashboard, 
   ChevronDown,
-  PlayCircle,
-  Ghost,
-  FileSpreadsheet,
-  ShieldAlert
+  PlayCircle
 } from "lucide-react";
 
 // --- COMPOSANTS UTILITAIRES ---
+
+// Composant Machine à écrire pour les points de douleur
+const TypewriterText = () => {
+  const phrases = [
+    "des places réservées restent vides toute la journée.",
+    "votre fichier Excel de suivi n'est jamais à jour.",
+    "vous perdez votre temps à arbitrer des conflits."
+  ];
+  
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+  const [currentText, setCurrentText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    // Vitesses d'écriture et de suppression (en ms)
+    const typingSpeed = isDeleting ? 30 : 60;
+    const pauseTime = isDeleting ? 500 : 2500;
+
+    const handleTyping = () => {
+      const fullText = phrases[currentPhraseIndex];
+
+      if (!isDeleting && currentText === fullText) {
+        // Pause avant d'effacer
+        setTimeout(() => setIsDeleting(true), pauseTime);
+      } else if (isDeleting && currentText === "") {
+        // Passage à la phrase suivante
+        setIsDeleting(false);
+        setCurrentPhraseIndex((prev) => (prev + 1) % phrases.length);
+      } else {
+        // Écriture ou suppression
+        const nextText = isDeleting
+          ? fullText.substring(0, currentText.length - 1)
+          : fullText.substring(0, currentText.length + 1);
+        setCurrentText(nextText);
+      }
+    };
+
+    const timer = setTimeout(handleTyping, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [currentText, isDeleting, currentPhraseIndex, phrases]);
+
+  return (
+    <span className="text-blue-400 font-semibold inline-block">
+      {currentText}
+      <span className="animate-pulse text-blue-500">|</span>
+    </span>
+  );
+};
 
 // Composant FAQ Accordéon
 const FAQItem = ({ question, answer }: { question: string, answer: string }) => {
@@ -51,7 +96,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#050505] text-slate-300 font-sans selection:bg-blue-500/30">
       
-      {/* 1. HEADER & NAVBAR */}
+      {/* HEADER & NAVBAR */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/40 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-white font-bold text-xl tracking-tight">
@@ -68,11 +113,12 @@ export default function LandingPage() {
       </header>
 
       <main className="pt-32 pb-20">
+        
         {/* HERO SECTION */}
         <section className="max-w-7xl mx-auto px-6 text-center">
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 text-xs font-semibold tracking-wide uppercase mb-8"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-wide uppercase mb-8"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -96,7 +142,7 @@ export default function LandingPage() {
           </motion.p>
           
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
-            <button className="bg-white text-black hover:bg-slate-200 px-8 py-4 rounded-full text-lg font-bold transition-all shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)] hover:shadow-[0_0_60px_-15px_rgba(255,255,255,0.5)] flex items-center gap-2 mx-auto">
+            <button className="bg-blue-600 text-white hover:bg-blue-700 px-8 py-4 rounded-full text-lg font-bold transition-all shadow-[0_0_40px_-10px_rgba(37,99,235,0.4)] hover:shadow-[0_0_60px_-15px_rgba(37,99,235,0.6)] flex items-center gap-2 mx-auto">
               Créer le parking de votre entreprise (Gratuit)
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -121,64 +167,20 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        {/* 2. LA BASCULE (Le changement de paradigme) */}
-        <section className="py-20 px-6 mt-12 relative">
-          {/* Effet de lueur en fond */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+        {/* MACHINE À ÉCRIRE (Le miroir de la douleur dynamique) */}
+        <section className="py-24 px-6 relative mt-10">
+          {/* Lueur subtile */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none"></div>
           
           <div className="max-w-4xl mx-auto text-center relative z-10">
-            <h2 className="text-2xl md:text-4xl text-slate-200 leading-relaxed font-light">
-              « Le problème n'est pas le manque de places. Le problème, c'est que votre système actuel manque de souplesse et de transparence. <span className="text-white font-bold block mt-4">Tant que la libération d'une place demande un effort, personne ne le fera.</span> »
+            <h2 className="text-3xl md:text-5xl text-slate-200 leading-tight font-bold">
+              Soyons honnêtes, la gestion du parking est devenue un cauchemar invisible car <TypewriterText />
             </h2>
           </div>
         </section>
 
-        {/* 3. LE MIROIR DE LA DOULEUR (Émotion et besoin) */}
-        <section className="py-16 px-6">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center text-white mb-16 tracking-tight">
-              Soyons honnêtes, la gestion du parking est devenue un cauchemar invisible...
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Douleur 1 */}
-              <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-8 hover:bg-[#111] transition-colors">
-                <div className="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center mb-6">
-                  <Ghost className="w-6 h-6 text-red-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4">Le syndrome du "Parking Fantôme"</h3>
-                <p className="text-slate-400 leading-relaxed">
-                  Trois cadres sont en déplacement ou en télétravail. Leurs places réservées restent vides toute la journée, pendant que deux employés tournent 20 minutes dans la rue.
-                </p>
-              </div>
-
-              {/* Douleur 2 */}
-              <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-8 hover:bg-[#111] transition-colors">
-                <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center mb-6">
-                  <FileSpreadsheet className="w-6 h-6 text-orange-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4">L'enfer du fichier Excel</h3>
-                <p className="text-slate-400 leading-relaxed">
-                  « Quelqu'un libère sa place aujourd'hui ? » Votre messagerie interne est polluée par des dizaines de messages et votre tableau de suivi n'est jamais à jour.
-                </p>
-              </div>
-
-              {/* Douleur 3 */}
-              <div className="bg-[#0A0A0A] border border-white/5 rounded-2xl p-8 hover:bg-[#111] transition-colors">
-                <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center mb-6">
-                  <ShieldAlert className="w-6 h-6 text-yellow-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4">Vous êtes devenu le policier</h3>
-                <p className="text-slate-400 leading-relaxed">
-                  Au lieu de vous concentrer sur vos vraies missions (RH, logistique, bien-être), vous passez votre temps à arbitrer des conflits d'attribution.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* 4. LA SOLUTION (Grille Bento avec Hover Animations) */}
-        <section className="py-24 px-6 max-w-7xl mx-auto border-t border-white/5 mt-10">
+        {/* LA SOLUTION (Grille Bento avec Hover Animations) */}
+        <section className="py-24 px-6 max-w-7xl mx-auto border-t border-white/5">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">Une technologie pensée pour l'humain</h2>
             <p className="text-slate-400">Pas de friction. Pas d'injustice. Juste un parking qui fonctionne.</p>
@@ -214,7 +216,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Carte 3 : QR Code Check-in (Avec ta vidéo intégrée) */}
+            {/* Carte 3 : QR Code Check-in */}
             <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0A] p-8 transition-all duration-300 hover:-translate-y-2 hover:border-purple-500/30 hover:bg-[#111] hover:shadow-[0_10px_40px_-10px_rgba(168,85,247,0.15)] flex flex-col justify-between">
               <div>
                 <QrCode className="w-8 h-8 text-purple-400 mb-6" />
@@ -224,7 +226,6 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="aspect-video rounded-xl bg-black border border-white/5 flex items-center justify-center overflow-hidden">
-                {/* Vidéo intégrée ici */}
                 <video 
                   autoPlay loop muted playsInline 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
@@ -235,7 +236,7 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Carte 4 : Dashboard (Avec ton image intégrée) */}
+            {/* Carte 4 : Dashboard */}
             <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0A] p-8 transition-all duration-300 hover:-translate-y-2 hover:border-emerald-500/30 hover:bg-[#111] hover:shadow-[0_10px_40px_-10px_rgba(16,185,129,0.15)] flex flex-col justify-between">
               <div>
                 <LayoutDashboard className="w-8 h-8 text-emerald-400 mb-6" />
@@ -245,7 +246,6 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="aspect-video rounded-xl bg-black border border-white/5 flex items-center justify-center overflow-hidden">
-                {/* Image intégrée ici */}
                 <img 
                   src="/images/dashboard-view.png" 
                   alt="Aperçu du Dashboard RH" 
@@ -257,7 +257,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 5. TÉMOIGNAGES */}
+        {/* TÉMOIGNAGES */}
         <section className="py-24 px-6 border-y border-white/5 bg-[#080808]">
           <div className="max-w-7xl mx-auto">
             <h2 className="text-3xl font-bold text-center text-white mb-16 tracking-tight">Ils ont retrouvé la paix le lundi matin</h2>
@@ -291,7 +291,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 6. FAQ */}
+        {/* FAQ */}
         <section className="py-24 px-6 max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-white mb-12 tracking-tight">Questions fréquentes</h2>
           <div className="flex flex-col gap-2">
@@ -310,10 +310,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 7. CTA FINAL (Design épuré et premium) */}
+        {/* CTA FINAL (Design épuré et premium conservé) */}
         <section className="py-24 px-6 text-center">
           <div className="max-w-4xl mx-auto relative rounded-3xl bg-[#0A0A0A] border border-white/10 p-12 md:p-20 overflow-hidden">
-            {/* Effet de lueur subtil au centre haut */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-white/5 blur-[100px] rounded-full pointer-events-none"></div>
             
             <div className="relative z-10">
@@ -343,7 +342,7 @@ export default function LandingPage() {
             <a href="#" className="hover:text-white transition-colors">Confidentialité & RGPD</a>
             <a href="#" className="hover:text-white transition-colors">Contact</a>
           </div>
-          <p className="text-sm text-slate-600">© 2024 ParkFlow. Tous droits réservés.</p>
+          <p className="text-sm text-slate-600">© 2026 ParkFlow. Tous droits réservés.</p>
         </div>
       </footer>
     </div>
