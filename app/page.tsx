@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-// ÉTAPE 1 : Ajout de useScroll, useSpring et useTransform
 import { motion, AnimatePresence, useScroll, useSpring, useTransform } from "framer-motion";
 import { 
   CarFront, 
@@ -10,13 +9,11 @@ import {
   Scale, 
   QrCode, 
   LayoutDashboard, 
-  ChevronDown,
-  PlayCircle
+  ChevronDown
 } from "lucide-react";
 
 // --- COMPOSANTS UTILITAIRES ---
 
-// Composant Machine à écrire pour les points de douleur
 const TypewriterText = () => {
   const phrases = [
     "des places réservées restent vides toute la journée.",
@@ -60,7 +57,6 @@ const TypewriterText = () => {
   );
 };
 
-// Composant FAQ Accordéon
 const FAQItem = ({ question, answer }: { question: string, answer: string }) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -90,7 +86,6 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
 // --- PAGE PRINCIPALE ---
 
 export default function LandingPage() {
-  // ÉTAPE 2 : Traque du scroll pour l'animation du fil conducteur
   const { scrollYProgress } = useScroll();
   const scaleY = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -102,40 +97,39 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#050505] text-slate-300 font-sans selection:bg-blue-500/30">
       
-      {/* ÉTAPE 3 : FIL CONDUCTEUR (SCROLL INDICATOR FIXE) */}
+      {/* FIL CONDUCTEUR CORRIGÉ */}
       <div className="fixed left-2 md:left-6 top-[15vh] bottom-[10vh] w-12 z-40 pointer-events-none flex flex-col items-center">
         
-        {/* Chevron animé pour inciter au scroll au tout début */}
-        <motion.div animate={{y: [0, 5, 0]}} transition={{repeat: Infinity, duration: 2}} className="text-blue-500/70 mb-4">
+        {/* Chevron d'incitation */}
+        <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="text-blue-500/70 mb-4">
           <ChevronDown className="w-5 h-5" />
         </motion.div>
 
-        {/* Ligne principale (La route) */}
+        {/* La route (ligne de base) */}
         <div className="w-[2px] flex-1 bg-white/10 relative">
           
           {/* Ligne bleue de progression */}
           <motion.div className="absolute top-0 left-0 w-full bg-blue-500 origin-top h-full" style={{ scaleY }} />
 
-          {/* Place de parking d'arrivée (centrée exactement sur la fin de la ligne) */}
-          <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 w-8 h-12 border-2 border-dashed border-blue-500/40 rounded flex items-center justify-center bg-[#050505] z-0">
+          {/* Place de parking d'arrivée (centrée sur le bas de la ligne) */}
+          <div className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 w-8 h-12 border-2 border-dashed border-blue-500/40 rounded flex items-center justify-center bg-[#050505] z-0">
             <span className="text-xs font-bold text-blue-500/30">P</span>
           </div>
 
-          {/* ÉTAPE 4 : La voiture animée accrochée au bout de la progression */}
+          {/* Voiture animée parfaitement centrée en X et Y par Framer Motion */}
           <motion.div
-            className="absolute left-1/2 -translate-x-1/2 bg-[#050505] p-1.5 rounded-full border border-blue-500/50 text-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.5)] z-10"
+            className="absolute left-1/2 bg-[#050505] p-1.5 rounded-full border border-blue-500/50 text-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.5)] z-10"
             style={{ 
-              top: carTop, // Descend en fonction du scroll
-              y: "-50%"    // Centre la voiture exactement sur le bord de la ligne bleue
+              top: carTop,
+              x: "-50%", // Correction : centrage horizontal via Framer Motion
+              y: "-50%"  // Centrage vertical
             }}
           >
-            {/* Voiture tournée vers le bas */}
             <CarFront className="w-4 h-4 md:w-5 md:h-5 rotate-180" />
           </motion.div>
 
         </div>
       </div>
-      {/* FIN DU FIL CONDUCTEUR */}
 
       {/* HEADER & NAVBAR */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/40 backdrop-blur-md">
@@ -192,7 +186,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
 
-          {/* MOCKUP (Image/Video) */}
+          {/* MOCKUP */}
           <motion.div 
             initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.4 }}
             className="mt-20 max-w-5xl mx-auto relative rounded-xl border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur-sm"
@@ -210,7 +204,7 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        {/* MACHINE À ÉCRIRE (Le miroir de la douleur dynamique) */}
+        {/* MACHINE À ÉCRIRE */}
         <section className="py-24 px-6 relative mt-10">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-600/5 blur-[120px] rounded-full pointer-events-none"></div>
           
@@ -221,7 +215,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* LA SOLUTION (Grille Bento avec Hover Animations) */}
+        {/* LA SOLUTION */}
         <section className="py-24 px-6 max-w-7xl mx-auto border-t border-white/5">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">Une technologie pensée pour l'humain</h2>
@@ -229,8 +223,6 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Carte 1 : Lien unique */}
             <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0A] p-8 transition-all duration-300 hover:-translate-y-2 hover:border-blue-500/30 hover:bg-[#111] hover:shadow-[0_10px_40px_-10px_rgba(37,99,235,0.15)] flex flex-col justify-between">
               <div>
                 <Smartphone className="w-8 h-8 text-blue-400 mb-6" />
@@ -250,7 +242,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Carte 2 : Algorithme */}
             <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0A] p-8 transition-all duration-300 hover:-translate-y-2 hover:border-indigo-500/30 hover:bg-[#111] hover:shadow-[0_10px_40px_-10px_rgba(99,102,241,0.15)] flex flex-col justify-between">
               <div>
                 <Scale className="w-8 h-8 text-indigo-400 mb-6" />
@@ -268,7 +259,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Carte 3 : QR Code Check-in */}
             <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0A] p-8 transition-all duration-300 hover:-translate-y-2 hover:border-purple-500/30 hover:bg-[#111] hover:shadow-[0_10px_40px_-10px_rgba(168,85,247,0.15)] flex flex-col justify-between">
               <div>
                 <QrCode className="w-8 h-8 text-purple-400 mb-6" />
@@ -288,7 +278,6 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Carte 4 : Dashboard */}
             <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0A] p-8 transition-all duration-300 hover:-translate-y-2 hover:border-emerald-500/30 hover:bg-[#111] hover:shadow-[0_10px_40px_-10px_rgba(16,185,129,0.15)] flex flex-col justify-between">
               <div>
                 <LayoutDashboard className="w-8 h-8 text-emerald-400 mb-6" />
@@ -305,7 +294,6 @@ export default function LandingPage() {
                 />
               </div>
             </div>
-
           </div>
         </section>
 
