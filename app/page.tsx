@@ -97,7 +97,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 text-white font-bold text-xl tracking-tight">
             <CarFront className="w-6 h-6 text-blue-500" />
-            <span>Park<span className="text-slate-400">Flow</span></span>
+            <span>TechCorp<span className="text-slate-400"> Parking</span></span>
           </div>
           <div className="flex items-center gap-6">
             <a href="#" className="text-sm font-medium hover:text-white transition-colors">Connexion</a>
@@ -342,14 +342,14 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2 text-white font-bold tracking-tight opacity-50 hover:opacity-100 transition-opacity">
             <CarFront className="w-5 h-5" />
-            <span>ParkFlow</span>
+            <span>TechCorp Parking</span>
           </div>
           <div className="flex gap-6 text-sm text-slate-500">
             <a href="#" className="hover:text-white transition-colors">Mentions légales</a>
             <a href="#" className="hover:text-white transition-colors">Confidentialité & RGPD</a>
             <a href="#" className="hover:text-white transition-colors">Contact</a>
           </div>
-          <p className="text-sm text-slate-600">© 2026 ParkFlow. Tous droits réservés.</p>
+          <p className="text-sm text-slate-600">© 2026 TechCorp Parking. Tous droits réservés.</p>
         </div>
       </footer>
     </div>
