@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
+// ÉTAPE 1 : Ajout de useScroll, useSpring et useTransform
+import { motion, AnimatePresence, useScroll, useSpring, useTransform } from "framer-motion";
 import { 
   CarFront, 
   ChevronRight, 
@@ -86,42 +87,55 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
   );
 };
 
-// Composant Fil Conducteur (Rail vertical avec voiture qui avance au scroll)
-const GlobalScrollRoad = () => {
-  const { scrollYProgress } = useScroll();
-  const carY = useTransform(scrollYProgress, [0, 0.95], ["0%", "100%"]);
-
-  return (
-    <div className="fixed left-4 md:left-8 top-28 bottom-12 z-40 hidden lg:flex flex-col items-center pointer-events-none">
-      {/* Route / Ligne pointillée */}
-      <div className="w-[2px] flex-1 bg-gradient-to-b from-blue-500/30 via-slate-700/40 to-emerald-500/30 relative rounded-full overflow-hidden">
-        <div className="absolute inset-0 border-l-2 border-dashed border-blue-400/20"></div>
-      </div>
-
-      {/* Voiture qui se déplace le long du scroll */}
-      <motion.div 
-        style={{ top: carY }}
-        className="absolute -translate-x-1/2 left-1/2 p-2 rounded-full bg-slate-900 border border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.6)] text-blue-400"
-      >
-        <CarFront className="w-4 h-4 rotate-180 animate-pulse" />
-      </motion.div>
-
-      {/* Badge Emplacement / Arrivée au Parking tout en bas */}
-      <div className="mt-2 w-6 h-6 rounded-md bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-[10px] font-bold text-emerald-400">
-        P
-      </div>
-    </div>
-  );
-};
-
 // --- PAGE PRINCIPALE ---
 
 export default function LandingPage() {
+  // ÉTAPE 2 : Traque du scroll pour l'animation du fil conducteur
+  const { scrollYProgress } = useScroll();
+  const scaleY = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+  const carTop = useTransform(scaleY, [0, 1], ["0%", "100%"]);
+
   return (
-    <div className="min-h-screen bg-[#050505] text-slate-300 font-sans selection:bg-blue-500/30 relative">
+    <div className="min-h-screen bg-[#050505] text-slate-300 font-sans selection:bg-blue-500/30">
       
-      {/* FIL CONDUCTEUR (Voiture qui roule vers sa place au défilement) */}
-      <GlobalScrollRoad />
+      {/* ÉTAPE 3 : FIL CONDUCTEUR (SCROLL INDICATOR FIXE) */}
+      <div className="fixed left-2 md:left-6 top-[15vh] bottom-[10vh] w-12 z-40 pointer-events-none flex flex-col items-center">
+        
+        {/* Chevron animé pour inciter au scroll au tout début */}
+        <motion.div animate={{y: [0, 5, 0]}} transition={{repeat: Infinity, duration: 2}} className="text-blue-500/70 mb-4">
+          <ChevronDown className="w-5 h-5" />
+        </motion.div>
+
+        {/* Ligne principale (La route) */}
+        <div className="w-[2px] flex-1 bg-white/10 relative">
+          
+          {/* Ligne bleue de progression */}
+          <motion.div className="absolute top-0 left-0 w-full bg-blue-500 origin-top h-full" style={{ scaleY }} />
+
+          {/* Place de parking d'arrivée (centrée exactement sur la fin de la ligne) */}
+          <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 w-8 h-12 border-2 border-dashed border-blue-500/40 rounded flex items-center justify-center bg-[#050505] z-0">
+            <span className="text-xs font-bold text-blue-500/30">P</span>
+          </div>
+
+          {/* ÉTAPE 4 : La voiture animée accrochée au bout de la progression */}
+          <motion.div
+            className="absolute left-1/2 -translate-x-1/2 bg-[#050505] p-1.5 rounded-full border border-blue-500/50 text-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.5)] z-10"
+            style={{ 
+              top: carTop, // Descend en fonction du scroll
+              y: "-50%"    // Centre la voiture exactement sur le bord de la ligne bleue
+            }}
+          >
+            {/* Voiture tournée vers le bas */}
+            <CarFront className="w-4 h-4 md:w-5 md:h-5 rotate-180" />
+          </motion.div>
+
+        </div>
+      </div>
+      {/* FIN DU FIL CONDUCTEUR */}
 
       {/* HEADER & NAVBAR */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/40 backdrop-blur-md">
@@ -142,7 +156,7 @@ export default function LandingPage() {
       <main className="pt-32 pb-20">
         
         {/* HERO SECTION */}
-        <section className="max-w-7xl mx-auto px-6 text-center relative">
+        <section className="max-w-7xl mx-auto px-6 text-center">
           <motion.div 
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-wide uppercase mb-8"
@@ -178,33 +192,10 @@ export default function LandingPage() {
             </p>
           </motion.div>
 
-          {/* INDICATEUR VISUEL DE DÉFILEMENT (Fil conducteur Hero -> Démo) */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-            className="mt-10 flex flex-col items-center gap-2"
-          >
-            <span className="text-xs uppercase tracking-widest text-blue-400 font-semibold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
-              Découvrir la démo en vidéo
-            </span>
-            <div className="w-6 h-10 rounded-full border-2 border-white/10 flex items-start justify-center p-1 bg-white/5">
-              <motion.div 
-                animate={{ y: [0, 16, 0] }}
-                transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
-                className="text-blue-400"
-              >
-                <CarFront className="w-3.5 h-3.5 rotate-180" />
-              </motion.div>
-            </div>
-            <ChevronDown className="w-4 h-4 text-slate-500 animate-bounce -mt-1" />
-          </motion.div>
-
           {/* MOCKUP (Image/Video) */}
           <motion.div 
             initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.4 }}
-            className="mt-8 max-w-5xl mx-auto relative rounded-xl border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur-sm"
+            className="mt-20 max-w-5xl mx-auto relative rounded-xl border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur-sm"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent z-10 top-1/2"></div>
             <div className="rounded-lg overflow-hidden bg-[#111] aspect-[16/9] relative flex items-center justify-center border border-white/5">
