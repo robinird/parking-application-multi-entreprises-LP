@@ -12,6 +12,9 @@ import {
   ChevronDown
 } from "lucide-react";
 
+import ContactModal from "@/components/ContactModal";
+import AuthModal from "@/components/AuthModal";
+
 // --- COMPOSANTS UTILITAIRES ---
 
 const TypewriterText = () => {
@@ -86,6 +89,11 @@ const FAQItem = ({ question, answer }: { question: string, answer: string }) => 
 // --- PAGE PRINCIPALE ---
 
 export default function LandingPage() {
+  // États de contrôle des modales
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+
+  // Animation du fil conducteur
   const { scrollYProgress } = useScroll();
   const scaleY = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -97,37 +105,31 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#050505] text-slate-300 font-sans selection:bg-blue-500/30">
       
-      {/* FIL CONDUCTEUR CORRIGÉ */}
+      {/* FIL CONDUCTEUR (SCROLL INDICATOR FIXE) */}
       <div className="fixed left-2 md:left-6 top-[15vh] bottom-[10vh] w-12 z-40 pointer-events-none flex flex-col items-center">
-        
-        {/* Chevron d'incitation */}
         <motion.div animate={{ y: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 2 }} className="text-blue-500/70 mb-4">
           <ChevronDown className="w-5 h-5" />
         </motion.div>
 
-        {/* La route (ligne de base) */}
         <div className="w-[2px] flex-1 bg-white/10 relative">
-          
-          {/* Ligne bleue de progression */}
           <motion.div className="absolute top-0 left-0 w-full bg-blue-500 origin-top h-full" style={{ scaleY }} />
 
-          {/* Place de parking d'arrivée (centrée sur le bas de la ligne) */}
+          {/* Place de parking d'arrivée */}
           <div className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2 w-8 h-12 border-2 border-dashed border-blue-500/40 rounded flex items-center justify-center bg-[#050505] z-0">
             <span className="text-xs font-bold text-blue-500/30">P</span>
           </div>
 
-          {/* Voiture animée parfaitement centrée en X et Y par Framer Motion */}
+          {/* Voiture animée */}
           <motion.div
             className="absolute left-1/2 bg-[#050505] p-1.5 rounded-full border border-blue-500/50 text-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.5)] z-10"
             style={{ 
               top: carTop,
-              x: "-50%", // Correction : centrage horizontal via Framer Motion
-              y: "-50%"  // Centrage vertical
+              x: "-50%",
+              y: "-50%"
             }}
           >
             <CarFront className="w-4 h-4 md:w-5 md:h-5 rotate-180" />
           </motion.div>
-
         </div>
       </div>
 
@@ -139,8 +141,16 @@ export default function LandingPage() {
             <span>TechCorp<span className="text-slate-400"> Parking</span></span>
           </div>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-sm font-medium hover:text-white transition-colors">Connexion</a>
-            <button className="bg-white text-black px-4 py-2 rounded-full text-sm font-semibold hover:bg-slate-200 transition-colors">
+            <button 
+              onClick={() => setIsAuthOpen(true)}
+              className="text-sm font-medium text-slate-300 hover:text-white transition-colors"
+            >
+              Connexion
+            </button>
+            <button 
+              onClick={() => setIsContactOpen(true)}
+              className="bg-white text-black px-4 py-2 rounded-full text-sm font-semibold hover:bg-slate-200 transition-colors"
+            >
               Créer un parking
             </button>
           </div>
@@ -177,7 +187,10 @@ export default function LandingPage() {
           </motion.p>
           
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
-            <button className="bg-blue-600 text-white hover:bg-blue-700 px-8 py-4 rounded-full text-lg font-bold transition-all shadow-[0_0_40px_-10px_rgba(37,99,235,0.4)] hover:shadow-[0_0_60px_-15px_rgba(37,99,235,0.6)] flex items-center gap-2 mx-auto">
+            <button 
+              onClick={() => setIsContactOpen(true)}
+              className="bg-blue-600 text-white hover:bg-blue-700 px-8 py-4 rounded-full text-lg font-bold transition-all shadow-[0_0_40px_-10px_rgba(37,99,235,0.4)] hover:shadow-[0_0_60px_-15px_rgba(37,99,235,0.6)] flex items-center gap-2 mx-auto"
+            >
               Créer le parking de votre entreprise (Gratuit)
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -186,17 +199,14 @@ export default function LandingPage() {
             </p>
           </motion.div>
 
-          {/* MOCKUP */}
+          {/* MOCKUP (Vidéo/Démo) */}
           <motion.div 
             initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.4 }}
             className="mt-20 max-w-5xl mx-auto relative rounded-xl border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur-sm"
           >
             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent z-10 top-1/2"></div>
             <div className="rounded-lg overflow-hidden bg-[#111] aspect-[16/9] relative flex items-center justify-center border border-white/5">
-              <video 
-                autoPlay loop muted playsInline 
-                className="w-full h-full object-cover"
-              >
+              <video autoPlay loop muted playsInline className="w-full h-full object-cover">
                 <source src="/videos/hero-demo.mp4" type="video/mp4" />
                 Votre navigateur ne supporte pas la balise vidéo.
               </video>
@@ -215,7 +225,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* LA SOLUTION */}
+        {/* LA SOLUTION (Bento Grid) */}
         <section className="py-24 px-6 max-w-7xl mx-auto border-t border-white/5">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">Une technologie pensée pour l'humain</h2>
@@ -232,12 +242,8 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="aspect-video rounded-xl bg-black border border-white/5 flex items-center justify-center overflow-hidden">
-                <video 
-                  autoPlay loop muted playsInline 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-                >
+                <video autoPlay loop muted playsInline className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100">
                   <source src="/videos/link-booking.mp4" type="video/mp4" />
-                  Votre navigateur ne supporte pas la balise vidéo.
                 </video>
               </div>
             </div>
@@ -251,11 +257,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="aspect-video rounded-xl bg-black border border-white/5 flex items-center justify-center overflow-hidden">
-                <img 
-                  src="/images/algorithm.png" 
-                  alt="Aperçu de l'algorithme d'équité" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-                />
+                <img src="/images/algorithm.png" alt="Algorithme d'équité" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" />
               </div>
             </div>
 
@@ -268,12 +270,8 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="aspect-video rounded-xl bg-black border border-white/5 flex items-center justify-center overflow-hidden">
-                <video 
-                  autoPlay loop muted playsInline 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-                >
+                <video autoPlay loop muted playsInline className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100">
                   <source src="/videos/qr-checkin.mp4" type="video/mp4" />
-                  Votre navigateur ne supporte pas la balise vidéo.
                 </video>
               </div>
             </div>
@@ -287,11 +285,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="aspect-video rounded-xl bg-black border border-white/5 flex items-center justify-center overflow-hidden">
-                <img 
-                  src="/images/dashboard-view.png" 
-                  alt="Aperçu du Dashboard RH" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
-                />
+                <img src="/images/dashboard-view.png" alt="Dashboard RH" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100" />
               </div>
             </div>
           </div>
@@ -303,21 +297,9 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold text-center text-white mb-16 tracking-tight">Ils ont retrouvé la paix le lundi matin</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                {
-                  quote: "Mes lundis matins ne sont plus gâchés par des querelles de places. Les équipes se gèrent en autonomie totale.",
-                  author: "Julie M.",
-                  role: "Office Manager (120 salariés)"
-                },
-                {
-                  quote: "Zéro formation nécessaire. Les collaborateurs ont adopté le lien unique d'entreprise en moins de 24 heures.",
-                  author: "Marc L.",
-                  role: "Directeur RH (350 salariés)"
-                },
-                {
-                  quote: "On a réoptimisé 30% de places inoccupées sans avoir à agrandir notre parking. Un gain financier direct.",
-                  author: "Thomas B.",
-                  role: "Responsable Services Généraux"
-                }
+                { quote: "Mes lundis matins ne sont plus gâchés par des querelles de places. Les équipes se gèrent en autonomie totale.", author: "Julie M.", role: "Office Manager (120 salariés)" },
+                { quote: "Zéro formation nécessaire. Les collaborateurs ont adopté le lien unique d'entreprise en moins de 24 heures.", author: "Marc L.", role: "Directeur RH (350 salariés)" },
+                { quote: "On a réoptimisé 30% de places inoccupées sans avoir à agrandir notre parking. Un gain financier direct.", author: "Thomas B.", role: "Responsable Services Généraux" }
               ].map((testimonial, i) => (
                 <div key={i} className="p-8 rounded-2xl bg-[#0D0D0D] border border-white/5 flex flex-col justify-between hover:border-white/10 transition-colors">
                   <p className="text-slate-300 italic mb-6 leading-relaxed">« {testimonial.quote} »</p>
@@ -362,7 +344,10 @@ export default function LandingPage() {
               <p className="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">
                 Configurez les accès de votre entreprise en moins de 3 minutes et éliminez définitivement les frictions liées au stationnement.
               </p>
-              <button className="bg-white text-black px-8 py-4 rounded-full text-lg font-bold hover:bg-slate-200 transition-all shadow-[0_0_30px_-5px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_-5px_rgba(255,255,255,0.4)]">
+              <button 
+                onClick={() => setIsContactOpen(true)}
+                className="bg-white text-black px-8 py-4 rounded-full text-lg font-bold hover:bg-slate-200 transition-all shadow-[0_0_30px_-5px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_-5px_rgba(255,255,255,0.4)]"
+              >
                 Tester gratuitement pour mon entreprise
               </button>
             </div>
@@ -385,6 +370,10 @@ export default function LandingPage() {
           <p className="text-sm text-slate-600">© 2026 TechCorp Parking. Tous droits réservés.</p>
         </div>
       </footer>
+
+      {/* MODALES D'ACTION */}
+      <ContactModal isOpen={isContactOpen} onClose={() => setIsContactOpen(false)} />
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>
   );
 }
