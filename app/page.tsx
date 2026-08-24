@@ -154,11 +154,13 @@ export default function LandingPage() {
           >
             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent z-10 top-1/2"></div>
             <div className="rounded-lg overflow-hidden bg-[#111] aspect-[16/9] relative flex items-center justify-center border border-white/5">
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600 bg-[#0A0A0A]">
-                 <PlayCircle className="w-16 h-16 mb-4 opacity-20" />
-                 <p className="text-sm font-medium">Démo Interactive : Réservation en 1 clic</p>
-                 <p className="text-xs mt-2 opacity-50">(Espace vidéo Hero)</p>
-              </div>
+              <video 
+                autoPlay loop muted playsInline 
+                className="w-full h-full object-cover"
+              >
+                <source src="/videos/hero-demo.mp4" type="video/mp4" />
+                Votre navigateur ne supporte pas la balise vidéo.
+              </video>
             </div>
           </motion.div>
         </section>
@@ -192,12 +194,18 @@ export default function LandingPage() {
                   Friction zéro : Pas d'application sur les App Stores, pas de mot de passe à retenir. Vos équipes cliquent et réservent depuis leur navigateur.
                 </p>
               </div>
-              <div className="aspect-video rounded-xl bg-[#151515] border border-white/5 flex items-center justify-center overflow-hidden">
-                <p className="text-xs text-slate-600 transition-transform duration-700 group-hover:scale-105">Espace Média (Lien web)</p>
+              <div className="aspect-video rounded-xl bg-black border border-white/5 flex items-center justify-center overflow-hidden">
+                <video 
+                  autoPlay loop muted playsInline 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+                >
+                  <source src="/videos/link-booking.mp4" type="video/mp4" />
+                  Votre navigateur ne supporte pas la balise vidéo.
+                </video>
               </div>
             </div>
 
-            {/* Carte 2 : Algorithme (Modifié avec algorithm.png) */}
+            {/* Carte 2 : Algorithme */}
             <div className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0A0A0A] p-8 transition-all duration-300 hover:-translate-y-2 hover:border-indigo-500/30 hover:bg-[#111] hover:shadow-[0_10px_40px_-10px_rgba(99,102,241,0.15)] flex flex-col justify-between">
               <div>
                 <Scale className="w-8 h-8 text-indigo-400 mb-6" />
