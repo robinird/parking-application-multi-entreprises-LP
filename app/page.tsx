@@ -410,8 +410,9 @@ export default function LandingPage() {
             <span>TechCorp Parking</span>
           </div>
           <div className="flex gap-6 text-sm text-slate-500">
-            <a href="#" className="hover:text-white transition-colors">Mentions légales</a>
-            <a href="#" className="hover:text-white transition-colors">Confidentialité & RGPD</a>
+            <Link href="/mentions-legales" className="hover:text-white transition-colors">
+              Mentions légales & Confidentialité
+            </Link>
             <button 
               onClick={handleOpenContact}
               className="hover:text-white transition-colors text-slate-500"
