@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Lock, ArrowRight, Mail } from "lucide-react";
+import { X, Lock, ArrowRight, Mail, AlertTriangle } from "lucide-react";
 
 export interface AuthModalProps {
   isOpen: boolean;
@@ -11,6 +11,10 @@ export interface AuthModalProps {
   onOpenDemo?: () => void;
 }
 
+const MAX_ATTEMPTS = 5;
+const BLOCK_MINUTES = 15;
+const BLOCK_MS = BLOCK_MINUTES * 60 * 1000;
+
 export default function AuthModal({
   isOpen,
   onClose,
@@ -18,10 +22,45 @@ export default function AuthModal({
   onOpenDemo,
 }: AuthModalProps) {
   const [mode, setMode] = useState<"login" | "register">(initialMode);
+  const [isMounted, setIsMounted] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+  const [blockTimeLeft, setBlockTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
+    setIsMounted(true);
     setMode(initialMode);
   }, [initialMode]);
+
+  useEffect(() => {
+    if (!isOpen || !isMounted) return;
+
+    const checkBlockStatus = () => {
+      const blockedUntilStr = localStorage.getItem("login_blocked_until");
+      if (blockedUntilStr) {
+        const blockedUntil = parseInt(blockedUntilStr, 10);
+        const timeRemaining = blockedUntil - Date.now();
+
+        if (timeRemaining > 0) {
+          setBlockTimeLeft(Math.ceil(timeRemaining / 60000));
+        } else {
+          setBlockTimeLeft(null);
+          localStorage.removeItem("login_blocked_until");
+          localStorage.setItem("login_attempts", "0");
+          setAttempts(0);
+        }
+      }
+
+      const savedAttempts = localStorage.getItem("login_attempts");
+      if (savedAttempts) {
+        setAttempts(parseInt(savedAttempts, 10));
+      }
+    };
+
+    checkBlockStatus();
+    const interval = setInterval(checkBlockStatus, 60000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, isMounted]);
 
   if (!isOpen) return null;
 
@@ -29,6 +68,21 @@ export default function AuthModal({
     onClose();
     if (onOpenDemo) {
       onOpenDemo();
+    }
+  };
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (blockTimeLeft !== null) return;
+
+    const newAttempts = attempts + 1;
+    setAttempts(newAttempts);
+    localStorage.setItem("login_attempts", newAttempts.toString());
+
+    if (newAttempts >= MAX_ATTEMPTS) {
+      const blockedUntil = Date.now() + BLOCK_MS;
+      localStorage.setItem("login_blocked_until", blockedUntil.toString());
+      setBlockTimeLeft(BLOCK_MINUTES);
     }
   };
 
@@ -66,7 +120,7 @@ export default function AuthModal({
             </p>
 
             {mode === "login" ? (
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
                     Mot de passe
@@ -76,18 +130,37 @@ export default function AuthModal({
                     <input
                       type="password"
                       placeholder="••••••••"
-                      className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 transition-colors"
+                      disabled={blockTimeLeft !== null}
+                      className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 mt-6"
-                >
-                  <span>Se connecter</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                {isMounted && blockTimeLeft !== null ? (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-start gap-3 mt-4">
+                    <AlertTriangle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-red-400">Accès temporairement bloqué</p>
+                      <p className="text-xs text-red-400/80 mt-1">
+                        Trop de tentatives échouées. Veuillez réessayer dans {blockTimeLeft} min.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="submit"
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 mt-6"
+                  >
+                    <span>Se connecter</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
+                
+                {isMounted && blockTimeLeft === null && attempts > 0 && attempts < MAX_ATTEMPTS && (
+                  <p className="text-xs text-amber-500/80 text-center mt-2">
+                    Tentative {attempts}/{MAX_ATTEMPTS} avant blocage.
+                  </p>
+                )}
               </form>
             ) : (
               <div className="space-y-4 text-center">
@@ -116,6 +189,7 @@ export default function AuthModal({
                         setMode("register");
                       }
                     }}
+                    type="button"
                     className="text-blue-400 hover:underline font-semibold"
                   >
                     Créer un espace
@@ -126,6 +200,7 @@ export default function AuthModal({
                   Déjà un compte ?{" "}
                   <button
                     onClick={() => setMode("login")}
+                    type="button"
                     className="text-blue-400 hover:underline font-semibold"
                   >
                     Se connecter
