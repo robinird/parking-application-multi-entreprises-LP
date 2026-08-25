@@ -15,6 +15,14 @@ const MAX_ATTEMPTS = 5;
 const BLOCK_MINUTES = 15;
 const BLOCK_MS = BLOCK_MINUTES * 60 * 1000;
 
+// 🔒 DICTIONNAIRE DES MOTS DE PASSE ET REDIRECTIONS
+// Ajoute tes mots de passe à gauche et les liens vers lesquels ils redirigent à droite.
+const PASSWORD_REDIRECTS: Record<string, string> = {
+  "LeoDemo2024": "https://app.techcorpparking.com/demo-leo",
+  "AdminTechCorp": "https://app.techcorpparking.com/admin",
+  "EntrepriseAlpha": "https://app.techcorpparking.com/espace-alpha",
+};
+
 export default function AuthModal({
   isOpen,
   onClose,
@@ -23,13 +31,20 @@ export default function AuthModal({
 }: AuthModalProps) {
   const [mode, setMode] = useState<"login" | "register">(initialMode);
   const [isMounted, setIsMounted] = useState(false);
+  
+  // Nouveaux états pour gérer le mot de passe et les erreurs
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  
   const [attempts, setAttempts] = useState(0);
   const [blockTimeLeft, setBlockTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
     setMode(initialMode);
-  }, [initialMode]);
+    setPassword(""); // Réinitialiser le mot de passe à l'ouverture
+    setError("");
+  }, [initialMode, isOpen]);
 
   useEffect(() => {
     if (!isOpen || !isMounted) return;
@@ -74,15 +89,30 @@ export default function AuthModal({
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (blockTimeLeft !== null) return;
+    
+    // 1. Vérification du mot de passe dans notre dictionnaire
+    const redirectUrl = PASSWORD_REDIRECTS[password];
 
-    const newAttempts = attempts + 1;
-    setAttempts(newAttempts);
-    localStorage.setItem("login_attempts", newAttempts.toString());
+    if (redirectUrl) {
+      // ✅ Succès : Le mot de passe est trouvé
+      setError("");
+      localStorage.removeItem("login_attempts"); // On réinitialise les erreurs
+      window.location.href = redirectUrl; // Redirection vers le lien
+    } else {
+      // ❌ Échec : Mauvais mot de passe
+      setError("Mot de passe incorrect.");
+      setPassword(""); // On vide le champ
+      
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+      localStorage.setItem("login_attempts", newAttempts.toString());
 
-    if (newAttempts >= MAX_ATTEMPTS) {
-      const blockedUntil = Date.now() + BLOCK_MS;
-      localStorage.setItem("login_blocked_until", blockedUntil.toString());
-      setBlockTimeLeft(BLOCK_MINUTES);
+      if (newAttempts >= MAX_ATTEMPTS) {
+        const blockedUntil = Date.now() + BLOCK_MS;
+        localStorage.setItem("login_blocked_until", blockedUntil.toString());
+        setBlockTimeLeft(BLOCK_MINUTES);
+        setError(""); // On efface l'erreur simple pour laisser place au message de blocage
+      }
     }
   };
 
@@ -123,17 +153,28 @@ export default function AuthModal({
               <form onSubmit={handleLoginSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Mot de passe
+                    Mot de passe d'accès
                   </label>
                   <div className="relative">
                     <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
                     <input
                       type="password"
                       placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        setError(""); // Efface l'erreur dès que l'utilisateur tape
+                      }}
                       disabled={blockTimeLeft !== null}
-                      className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={`w-full bg-white/5 border rounded-lg py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-600 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                        error ? "border-red-500 focus:border-red-500" : "border-white/10 focus:border-blue-500"
+                      }`}
                     />
                   </div>
+                  {/* Affichage de l'erreur de mot de passe */}
+                  {error && (
+                    <p className="text-red-400 text-xs mt-1.5 font-medium">{error}</p>
+                  )}
                 </div>
 
                 {isMounted && blockTimeLeft !== null ? (
@@ -149,7 +190,8 @@ export default function AuthModal({
                 ) : (
                   <button
                     type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 mt-6"
+                    disabled={!password}
+                    className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 disabled:text-white/50 text-white font-semibold py-3 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 mt-6"
                   >
                     <span>Se connecter</span>
                     <ArrowRight className="w-4 h-4" />
