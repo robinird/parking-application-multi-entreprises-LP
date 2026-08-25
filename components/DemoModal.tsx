@@ -117,7 +117,7 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
 
             <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-xs text-slate-500">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>Réponse garantie en moins de 2 heures ouvrées • Sans engagement</span>
+              <span>Réponse garantie • Sans engagement</span>
             </div>
           </motion.div>
         </div>
