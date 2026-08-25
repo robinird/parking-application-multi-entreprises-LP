@@ -21,7 +21,7 @@ export default function MentionsLegalesPage() {
           <p className="mb-2">En vertu de l'article 6 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN) :</p>
           <ul className="list-disc pl-5 space-y-1 text-slate-400">
             <li><strong>Projet :</strong> TechCorp Parking (Pré-lancement)</li>
-            <li><strong>Éditeur :</strong> Robin ROUILLARD (Édition à titre individuel et non professionnel)</li>
+            <li><strong>Éditeur :</strong> Robin (Édition à titre individuel et non professionnel)</li>
             <li><strong>Contact :</strong> contact.techcorpparking@gmail.com</li>
             <li><strong>Hébergeur :</strong> Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis (https://vercel.com)</li>
           </ul>
