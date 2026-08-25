@@ -13,9 +13,9 @@ import {
   ChevronDown
 } from "lucide-react";
 
-// Importations relatives sécurisées des composantes modales
 import AuthModal from "../components/AuthModal";
 import ContactModal from "../components/ContactModal";
+import DemoModal from "../components/DemoModal"; // <-- Ajout de l'import
 
 // --- COMPOSANTS UTILITAIRES ---
 
@@ -91,20 +91,19 @@ const FAQItem = ({ question, answer }: { question: string; answer: string }) => 
 // --- PAGE PRINCIPALE ---
 
 export default function LandingPage() {
-  // États de gestion des modales
+  // États de gestion des 3 modales indépendantes
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<"login" | "register">("register");
+  const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   // Handlers pour déclencher les modales
   const handleOpenLogin = () => {
-    setAuthMode("login");
     setIsAuthModalOpen(true);
   };
 
   const handleOpenRegister = () => {
-    setAuthMode("register");
-    setIsAuthModalOpen(true);
+    // Tous les boutons de création ouvrent désormais la DemoModal
+    setIsDemoModalOpen(true);
   };
 
   const handleOpenContact = () => {
@@ -424,13 +423,22 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* COMPOSANTS MODALES */}
+      {/* --- COMPOSANTS MODALES INDÉPENDANTS --- */}
+      
+      {/* 1. Modale de Connexion (Mot de passe uniquement) */}
       <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
-        initialMode={authMode} 
+        onOpenDemo={() => setIsDemoModalOpen(true)} // Si l'utilisateur clique sur "Créer un espace"
       />
 
+      {/* 2. Modale de Démo/Inscription (Envoi d'e-mail pré-rempli) */}
+      <DemoModal
+        isOpen={isDemoModalOpen}
+        onClose={() => setIsDemoModalOpen(false)}
+      />
+
+      {/* 3. Modale de Contact basique (Bulle email footer) */}
       <ContactModal 
         isOpen={isContactModalOpen} 
         onClose={() => setIsContactModalOpen(false)} 
