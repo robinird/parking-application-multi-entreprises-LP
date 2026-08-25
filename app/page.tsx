@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform } from "framer-motion";
 import { 
   CarFront, 
