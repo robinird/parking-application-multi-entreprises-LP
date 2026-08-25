@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, Copy, Check, Sparkles, ShieldCheck } from "lucide-react";
+import { X, Mail, Copy, Check, Sparkles, ShieldCheck, Timer } from "lucide-react";
 
 interface DemoModalProps {
   isOpen: boolean;
@@ -19,21 +19,63 @@ Nous sommes actuellement {À Compléter} employés/collaborateurs pour un parkin
 Cordialement,
 {À Compléter}`;
 
+const COOLDOWN_MINUTES = 30;
+const COOLDOWN_MS = COOLDOWN_MINUTES * 60 * 1000;
+
 export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
   const [copied, setCopied] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
   const mailtoUrl = `mailto:${EMAIL_RECIPIENT}?subject=${encodeURIComponent(
     EMAIL_SUBJECT
   )}&body=${encodeURIComponent(EMAIL_BODY_TEMPLATE)}`;
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen || !isMounted) return;
+
+    const checkCooldown = () => {
+      const lastClickStr = localStorage.getItem("demo_modal_last_click");
+      if (lastClickStr) {
+        const lastClickTime = parseInt(lastClickStr, 10);
+        const timePassed = Date.now() - lastClickTime;
+
+        if (timePassed < COOLDOWN_MS) {
+          setTimeRemaining(Math.ceil((COOLDOWN_MS - timePassed) / 60000));
+        } else {
+          setTimeRemaining(null);
+          localStorage.removeItem("demo_modal_last_click");
+        }
+      }
+    };
+
+    checkCooldown();
+    const interval = setInterval(checkCooldown, 60000); // Mise à jour chaque minute
+
+    return () => clearInterval(interval);
+  }, [isOpen, isMounted]);
+
+  const recordAction = () => {
+    localStorage.setItem("demo_modal_last_click", Date.now().toString());
+    setTimeRemaining(COOLDOWN_MINUTES);
+  };
+
   const handleOpenMail = () => {
+    if (timeRemaining !== null) return;
+    recordAction();
     window.location.href = mailtoUrl;
   };
 
   const handleCopyText = async () => {
+    if (timeRemaining !== null) return;
     try {
       await navigator.clipboard.writeText(EMAIL_BODY_TEMPLATE);
       setCopied(true);
+      recordAction();
       setTimeout(() => setCopied(false), 2500);
     } catch (err) {
       console.error("Erreur lors de la copie du texte :", err);
@@ -89,30 +131,44 @@ export default function DemoModal({ isOpen, onClose }: DemoModalProps) {
             </div>
 
             <div className="flex flex-col gap-3">
-              <button
-                onClick={handleOpenMail}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3.5 px-6 rounded-full font-bold transition-all shadow-[0_0_25px_-5px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group"
-              >
-                <Mail className="w-5 h-5 transition-transform group-hover:scale-110" />
-                Ouvrir mon logiciel de messagerie
-              </button>
+              {isMounted && timeRemaining !== null ? (
+                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex flex-col items-center justify-center gap-2 text-center">
+                  <Timer className="w-6 h-6 text-red-400" />
+                  <p className="text-sm font-medium text-red-400">
+                    Vous avez déjà préparé une demande.
+                  </p>
+                  <p className="text-xs text-red-400/80">
+                    Veuillez patienter {timeRemaining} min avant de réessayer.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={handleOpenMail}
+                    className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3.5 px-6 rounded-full font-bold transition-all shadow-[0_0_25px_-5px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group"
+                  >
+                    <Mail className="w-5 h-5 transition-transform group-hover:scale-110" />
+                    Ouvrir mon logiciel de messagerie
+                  </button>
 
-              <button
-                onClick={handleCopyText}
-                className="w-full bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 py-3 px-6 rounded-full text-sm font-medium transition-all flex items-center justify-center gap-2"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-4 h-4 text-emerald-400" />
-                    <span className="text-emerald-400 font-semibold">Texte copié dans le presse-papier !</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 text-slate-400" />
-                    Copier le texte du message (alternative)
-                  </>
-                )}
-              </button>
+                  <button
+                    onClick={handleCopyText}
+                    className="w-full bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 py-3 px-6 rounded-full text-sm font-medium transition-all flex items-center justify-center gap-2"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-400" />
+                        <span className="text-emerald-400 font-semibold">Texte copié dans le presse-papier !</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4 text-slate-400" />
+                        Copier le texte du message (alternative)
+                      </>
+                    )}
+                  </button>
+                </>
+              )}
             </div>
 
             <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-xs text-slate-500">
