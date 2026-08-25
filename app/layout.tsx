@@ -56,7 +56,7 @@ export const metadata: Metadata = {
   },
   // 2. EMPLACEMENT POUR LA CLÉ GOOGLE (VOIR ÉTAPE 3)
   verification: {
-    google: "VOTRE_CODE_DE_VERIFICATION_GOOGLE",
+    google: "qfWz-ADm0zm8dZzQZRBWzATQTfOIxQVmcM01A3t6pvk",
   },
 };
 
